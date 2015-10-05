@@ -4,15 +4,15 @@ module Zipline
   class OutputStream < Zip::OutputStream
 
     #we need to be able to hand out own custom output in order to stream to browser
-    def initialize(io)
+    def initialize(io, _stream, _encrypter)
       # Create an io stream thing
       super StringIO.new, true
       # Overwrite it with my own
-      @output_stream = io
+      @buffer_stream = io
     end
 
     def stream
-      @output_stream
+      @buffer_stream
     end
 
     def put_next_entry(entry_name, size)
@@ -39,7 +39,7 @@ module Zipline
     end
 
     def write_local_footer(entry)
-      @output_stream << [ 0x08074b50, entry.crc, entry.compressed_size, entry.size].pack('VVVV')
+      @buffer_stream << [ 0x08074b50, entry.crc, entry.compressed_size, entry.size].pack('VVVV')
     end
 
     #never need to do this because we set correct sizes up front
